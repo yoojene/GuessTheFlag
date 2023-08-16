@@ -44,23 +44,12 @@ struct ContentView: View {
     @State private var gameEnded = false
     
     @State private var animationAmount = 0.0
-    @State private var opacityAmount = 1.0
     
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
     
-    @State private var scale = 1.0
-    @State private var playerChoice = 0
+    @State private var selectedFlag = -1
     
-    var otherAnswers: (Int, Int) {
-        switch playerChoice {
-            case 0: return (1, 2)
-            case 1: return (0, 2)
-            case 2: return (0, 1)
-            default: return (0, 0)
-        }
-        
-    }
     var body: some View {
         
         ZStack {
@@ -91,20 +80,17 @@ struct ContentView: View {
                     ForEach(0..<3) { number in
                         Button {
                             animationAmount += 360
-                            opacityAmount -= 0.75
-                            playerChoice = number
-                            flaggedTapped(playerChoice)
-                            scale -= 0.5
+                            selectedFlag = number
+                            flaggedTapped(number)
                             
                         } label : {
                             FlagImage(country: countries[number])  // Views and Modifiers challenge 2
-                                .opacity(number != otherAnswers.0 && number != otherAnswers.1 ? 1.0 : opacityAmount) // Animations challenge 2, change opacity to 0.25 for non tapped flags.  Better solution?
-                                .rotation3DEffect(.degrees(animationAmount), axis: (x: 0, y: 1, z: 0))  // Animations challenge 1.
+                                .rotation3DEffect(.degrees(selectedFlag == number ? animationAmount : 0 ), axis: (x: 0, y: 1, z: 0))  // Animations challenge 1.
                                 // Do not need the withAnimation closure in the button to wrap the addition to the
                                 // animationAmount as we are animating the label not the button itself.  Adding the closure results in animating all 3 at the same time, not just the one tapped
-                                .scaleEffect(number != otherAnswers.0 && number != otherAnswers.1 ? 1.0 : scale)
-                                .animation(number != otherAnswers.0 && number != otherAnswers.1 ? .linear(duration: 1) : nil, value: scale)
-                                // Animation challenge 3, add more animations to non tapped flags.  Scale out
+                                .opacity(((selectedFlag == number) || (selectedFlag == -1)) ? 1.0 : 0.25) // Animations challenge 2, change opacity to 0.25 for non tapped flags.  Better solution?
+                                .scaleEffect((selectedFlag == -1) ? 1 : ((selectedFlag == number ) ? 1.1 : 0.5))
+                                // Animation challenge 3, add more animations to non tapped flags.  Do not need additional .animation modifier for it to worl
                            
                         }
                     }
@@ -122,7 +108,11 @@ struct ContentView: View {
                 
                 Spacer()
 
-            } .padding()
+            }
+            .padding()
+            .alert(isPresented: $gameEnded) {
+                Alert(title: Text("Game over"), message: Text("Congratulations you scored \(score) points"), dismissButton: .default(Text("Restart Game"), action: resetGame))
+            }
         }
         .alert(scoreTitle, isPresented: $showingScore) {
             Button("Continue", action: askQuestion)
@@ -130,13 +120,6 @@ struct ContentView: View {
             Text("Your score is \(score)")
         }
         
-
-        // Can we hide this?
-        if gameEnded { Button("Restart Game", action: resetGame)
-                .alert(isPresented: $gameEnded) {
-                    Alert(title: Text("Game over"), message: Text("Congratulations you scored \(score) points"), dismissButton: .default(Text("Restart Game"), action: resetGame))
-                }
-        }
 
     }
 
@@ -161,8 +144,7 @@ struct ContentView: View {
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
-        opacityAmount = 1.0
-        scale = 1.0
+        selectedFlag = -1
         
     }
     
