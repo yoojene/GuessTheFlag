@@ -10,11 +10,11 @@ import SwiftUI
 
 
 // Views and modifiers challenge 3
-//extension View {
-//     func blueFontStyle() -> some View {
-//         modifier(BlueFont())
-//     }
-// }
+extension View {
+     func blueFontStyle() -> some View {
+         modifier(BlueFont())
+     }
+ }
 
 struct FlagImage: View {
     
@@ -27,11 +27,11 @@ struct FlagImage: View {
     }
 }
 
-//struct BlueFont: ViewModifier {
-//    func body(content: Content) -> some View {
-//        content.font(.largeTitle).foregroundColor(.blue)
-//    }
-//}
+struct BlueFont: ViewModifier {
+    func body(content: Content) -> some View {
+        content.font(.largeTitle).foregroundColor(.blue)
+    }
+}
 
 
 struct ContentView: View {
@@ -61,9 +61,7 @@ struct ContentView: View {
                 Spacer()
                 
                 Text("Guess the flag")
-                    .font(.largeTitle.bold())
-                    .foregroundColor(.white)
-//                    .blueFontStyle()
+                    .blueFontStyle()
                     
                 
                 VStack(spacing: 15) {
