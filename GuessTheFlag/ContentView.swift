@@ -31,7 +31,7 @@ struct FlagImage: View {
 
 struct BlueFont: ViewModifier {
     func body(content: Content) -> some View {
-        content.font(.largeTitle).foregroundColor(.blue)
+        content.font(.largeTitle).foregroundColor(.cyan)
     }
 }
 
